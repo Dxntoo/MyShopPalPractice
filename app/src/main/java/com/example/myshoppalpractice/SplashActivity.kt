@@ -16,6 +16,6 @@ class SplashActivity : AppCompatActivity() {
             startActivity(Intent(this@SplashActivity, MainActivity::class.java))
             finish() // Call this when your activity is done and should be closed.
 
-        }, 3000)
+        }, 2500)
     }
 }
