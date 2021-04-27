@@ -35,6 +35,8 @@ class RegisterActivity : BaseActivity() {
         // Check with validate function if the entries are valid or not.
         if (validateRegisterDetails()) {
 
+            showProgressDialog(resources.getString(R.string.please_wait))
+
             val email: String = et_email.text.toString().trim { it <= ' ' }
             val password: String = et_email.text.toString().trim { it <= ' ' }
 
@@ -43,6 +45,7 @@ class RegisterActivity : BaseActivity() {
                 .addOnCompleteListener(
                     OnCompleteListener<AuthResult> { task ->
 
+                        hideProgressDialog()
                         // If the registration is successfully done
                         if (task.isSuccessful) {
 
