@@ -6,4 +6,31 @@
     android:layout_height="match_parent"
     tools:context=".LoginActivity">
 
+    <FrameLayout
+        android:id="@+id/fl_header_image"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/auth_header_image_height"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/content_description"
+            android:scaleType="fitXY"
+            android:src="@drawable/auth_screens_background" />
+
+        <ImageView
+            android:layout_width="@dimen/auth_logo_width_size"
+            android:layout_height="@dimen/auth_logo_height_size"
+            android:layout_gravity="center"
+            android:contentDescription="@string/app_name"
+            android:scaleType="fitCenter"
+            android:src="@drawable/logo"
+            app:tint="@color/colorWhite" />
+
+    </FrameLayout>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
