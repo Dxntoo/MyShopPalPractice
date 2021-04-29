@@ -94,7 +94,7 @@ class RegisterActivity : BaseActivity() {
                 .addOnCompleteListener(
                     OnCompleteListener<AuthResult> { task ->
 
-                        hideProgressDialog()
+//
                         // If the registration is successfully done
                         if (task.isSuccessful) {
 
@@ -110,9 +110,10 @@ class RegisterActivity : BaseActivity() {
 
                             FirestoreClass().registerUser(this@RegisterActivity, user)
 
-
+                            hideProgressDialog()
 
                         } else {
+                            hideProgressDialog()
                             // If the registering is not successful then show error message.
                             showErrorSnackBar(task.exception!!.message.toString(), true)
                         }
