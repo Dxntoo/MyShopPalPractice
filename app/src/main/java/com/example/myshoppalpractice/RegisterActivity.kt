@@ -110,7 +110,7 @@ class RegisterActivity : BaseActivity() {
 
                             FirestoreClass().registerUser(this@RegisterActivity, user)
 
-                            hideProgressDialog()
+
 
                         } else {
                             hideProgressDialog()
