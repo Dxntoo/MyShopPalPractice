@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.dialog_progress.*
 
+
 open class BaseActivity : AppCompatActivity() {
 
     private lateinit var mProgressDialog: Dialog
