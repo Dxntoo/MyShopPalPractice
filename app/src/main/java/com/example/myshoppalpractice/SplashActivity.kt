@@ -8,6 +8,8 @@ import android.os.Handler
 import android.os.Looper
 import com.example.myshoppalpractice.R
 import android.view.WindowManager
+import com.example.myshoppalpractice.firestore.FirestoreClass
+import com.google.firebase.ktx.Firebase
 
 
 @Suppress("DEPRECATION")
@@ -23,7 +25,15 @@ class SplashActivity : AppCompatActivity() {
 
         Handler().postDelayed({
             // Your Code
-            startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
+
+            val currentUserID = FirestoreClass().getCurrentUserID()
+
+            if(currentUserID.isNotEmpty()){
+                startActivity(Intent(this@SplashActivity, MainActivity::class.java))
+            }else{
+                startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
+            }
+
             finish() // Call this when your activity is done and should be closed.
 
         }, 2500)

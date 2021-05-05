@@ -13,6 +13,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.myshoppalpractice.firestore.FirestoreClass
 import com.example.myshoppalpractice.models.User
 import com.example.myshoppalpractice.utils.Constants
 import com.example.myshoppalpractice.utils.GlideLoader
@@ -24,23 +25,30 @@ import kotlinx.android.synthetic.main.activity_user_profile.*
 import java.io.IOException
 
 class UserProfileActivity : BaseActivity(), View.OnClickListener {
+
+    private lateinit var muserDetails: User
+
+    private var mSelectedImageFileUri: Uri? = null
+
+    private var mUserProfileImageURL: String = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_profile)
 
-        var userDetails: User = User()
+
         if(intent.hasExtra(Constants.EXTRA_USER_DETAILS)){
-            userDetails = intent.getParcelableExtra(Constants.EXTRA_USER_DETAILS)!!
+            muserDetails = intent.getParcelableExtra(Constants.EXTRA_USER_DETAILS)!!
         }
 
         et_first_name.isEnabled = false
-        et_first_name.setText(userDetails.firstName)
+        et_first_name.setText(muserDetails.firstName)
 
         et_last_name.isEnabled = false
-        et_last_name.setText(userDetails.lastName)
+        et_last_name.setText(muserDetails.lastName)
 
         et_email.isEnabled = false
-        et_email.setText(userDetails.email)
+        et_email.setText(muserDetails.email)
 
         iv_user_photo.setOnClickListener(this@UserProfileActivity)
         btn_save.setOnClickListener(this@UserProfileActivity)
@@ -73,9 +81,53 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
                 }
 
                 R.id.btn_save ->{
+
+                    showProgressDialog(resources.getString(R.string.please_wait))
+
+                    FirestoreClass().uploadImageToCloudStorage(
+                            this@UserProfileActivity,
+                            mSelectedImageFileUri
+                    )
                     if(validateUserProfileDetails()){
-                        showErrorSnackBar("Your details are valid. You can update them.",false)
+
+                        showProgressDialog(resources.getString(R.string.please_wait))
+
+                        FirestoreClass().uploadImageToCloudStorage(
+                                this@UserProfileActivity,
+                                mSelectedImageFileUri
+                        )
+
+                    }else{
+
+                        updateUserProfileDetails()
                     }
+
+
+
+//                        val userHashMap = HashMap<String, Any>()
+//
+//
+//                        val mobileNumber = et_mobile_number.text.toString().trim{ it <= ' '}
+//
+//                        val gender = if(rb_male.isChecked){
+//                            Constants.MALE
+//                        }else{
+//                            Constants.FEMALE
+//                        }
+//
+//                        if(mobileNumber.isNotEmpty()){
+//                            userHashMap[Constants.MOBILE] = mobileNumber.toLong()
+//                        }
+//
+//                        userHashMap[Constants.GENDER] = gender
+//
+//                        showProgressDialog(resources.getString(R.string.please_wait))
+//
+//                        FirestoreClass().updateUserProfileData(
+//                                this@UserProfileActivity,
+//                                userHashMap
+//                        )
+
                 }
             }
         }
@@ -105,10 +157,10 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
                 if(data!=null){
                     try {
 
-                        val selectedImageFileUri = data.data!!
+                        mSelectedImageFileUri = data.data!!
 
                         GlideLoader(this@UserProfileActivity).loadUserPicture(
-                                selectedImageFileUri,
+                                mSelectedImageFileUri!!,
                                 iv_user_photo
                         )
                     } catch (e: IOException){
@@ -145,4 +197,62 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
             }
         }
     }
+
+    fun userProfileUpdateSuccess(){
+
+        hideProgressDialog()
+
+        Toast.makeText(
+                this@UserProfileActivity,
+                resources.getString(R.string.msg_profile_update_success),
+                Toast.LENGTH_SHORT
+        ).show()
+
+        startActivity(Intent(this@UserProfileActivity, MainActivity::class.java))
+        finish()
+    }
+
+    fun imageUploadSuccess(imageURL: String) {
+
+        // Hide the progress dialog
+
+
+        mUserProfileImageURL = imageURL
+
+        updateUserProfileDetails()
+    }
+
+    private fun updateUserProfileDetails(){
+        val userHashMap = HashMap<String, Any>()
+
+
+        val mobileNumber = et_mobile_number.text.toString().trim{ it <= ' '}
+
+        val gender = if(rb_male.isChecked){
+            Constants.MALE
+        }else{
+            Constants.FEMALE
+        }
+
+
+        if (mUserProfileImageURL.isNotEmpty()){
+            userHashMap[Constants.IMAGE] = mUserProfileImageURL
+        }
+
+        if(mobileNumber.isNotEmpty()){
+            userHashMap[Constants.MOBILE] = mobileNumber.toLong()
+        }
+
+        userHashMap[Constants.GENDER] = gender
+
+        userHashMap[Constants.COMPLETE_PROFILE] = 1
+
+        FirestoreClass().updateUserProfileData(
+                this@UserProfileActivity,
+                userHashMap
+        )
+
+
+    }
+
 }

@@ -54,7 +54,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener {
 
                     // TODO Step 6: Call the validate function.
                     // START
-                    validateLoginDetails()
+                    logInRegisteredUser()
                     // END
                 }
 

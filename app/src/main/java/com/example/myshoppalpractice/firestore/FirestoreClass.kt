@@ -2,14 +2,19 @@ package com.example.myshoppalpractice.firestore
 
 import android.app.Activity
 import android.content.Context
+import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import com.example.myshoppalpractice.LoginActivity
 import com.example.myshoppalpractice.RegisterActivity
+import com.example.myshoppalpractice.UserProfileActivity
 import com.example.myshoppalpractice.models.User
 import com.example.myshoppalpractice.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 
 
 class FirestoreClass {
@@ -98,6 +103,96 @@ class FirestoreClass {
                 )
             }
     }
+
+    fun updateUserProfileData(activity: Activity, userHashMap: HashMap<String, Any>){
+        mFireStore.collection(Constants.USERS)
+                // Document ID against which the data to be updated. Here the document id is the current logged in user id.
+                .document(getCurrentUserID())
+                // A HashMap of fields which are to be updated.
+                .update(userHashMap)
+                .addOnSuccessListener {
+
+                    // START
+                    // Notify the success result.
+                    when (activity) {
+                        is UserProfileActivity -> {
+                            // Call a function of base activity for transferring the result to it.
+                            activity.userProfileUpdateSuccess()
+                        }
+                    }
+                    // END
+                }
+                .addOnFailureListener { e ->
+
+                    when (activity) {
+                        is UserProfileActivity -> {
+                            // Hide the progress dialog if there is any error. And print the error in log.
+                            activity.hideProgressDialog()
+                        }
+                    }
+
+                    Log.e(
+                            activity.javaClass.simpleName,
+                            "Error while updating the user details.",
+                            e
+                    )
+                }
+    }
+
+    fun uploadImageToCloudStorage(activity: Activity, imageFileURI: Uri?) {
+
+        //getting the storage reference
+        val sRef: StorageReference = FirebaseStorage.getInstance().reference.child(
+                Constants.USER_PROFILE_IMAGE + System.currentTimeMillis() + "."
+                        + Constants.getFileExtension(
+                        activity,
+                        imageFileURI
+                )
+        )
+        Log.e("Uploaded",imageFileURI!!.toString())
+        //adding the file to reference
+        sRef.putFile(imageFileURI!!)
+                .addOnSuccessListener { taskSnapshot ->
+                    // The image upload is success
+                    Log.e(
+                            "Firebase Image URL",
+                            taskSnapshot.metadata!!.reference!!.downloadUrl.toString()
+                    )
+
+                    // Get the downloadable url from the task snapshot
+                    taskSnapshot.metadata!!.reference!!.downloadUrl
+                            .addOnSuccessListener { uri ->
+                                Log.e("Downloadable Image URL", uri.toString())
+
+                                // TODO Step 8: Pass the success result to base class.
+                                // START
+                                // Here call a function of base activity for transferring the result to it.
+                                when (activity) {
+                                    is UserProfileActivity -> {
+                                        activity.imageUploadSuccess(uri.toString())
+                                    }
+                                }
+                                // END
+                            }
+                }
+                .addOnFailureListener { exception ->
+
+                    // Hide the progress dialog if there is any error. And print the error in log.
+                    when (activity) {
+                        is UserProfileActivity -> {
+                            activity.hideProgressDialog()
+                        }
+                    }
+
+                    Log.e(
+                            activity.javaClass.simpleName,
+                            exception.message,
+                            exception
+                    )
+                }
+    }
+
+
 
 
 }
